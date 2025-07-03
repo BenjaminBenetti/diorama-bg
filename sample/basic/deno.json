@@ -1,0 +1,17 @@
+{
+
+  "tasks": {
+    "build": "deno check main.ts",
+    "dev": "deno run --allow-net --allow-read --watch main.ts",
+    "serve": "deno run --allow-net --allow-read main.ts",
+    "fmt": "deno fmt",
+    "lint": "deno lint"
+  },
+  "imports": {
+    "@std/http": "jsr:@std/http@1"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["dom", "dom.iterable", "es2022", "deno.ns"]
+  }
+}
