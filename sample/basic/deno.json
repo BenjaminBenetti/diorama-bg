@@ -1,9 +1,11 @@
 {
-
   "tasks": {
-    "build": "deno check main.ts",
-    "dev": "deno run --allow-net --allow-read --watch main.ts",
-    "serve": "deno run --allow-net --allow-read main.ts",
+    "build": "mkdir -p dist && deno bundle ./src/main.ts -o dist/app.js && cp src/index.html dist/ && cp -r src/assets dist/",
+    "build:check": "deno check ./src/main.ts",
+    "build:docker": "cd ../../ && docker build -f sample/basic/Dockerfile -t parallax-bg-demo .",
+    "run:docker": "deno task build:docker && docker run -p 8080:80 parallax-bg-demo",
+    "clean": "rm -rf dist",
+    "serve:dist": "cd dist && python3 -m http.server 8000",
     "fmt": "deno fmt",
     "lint": "deno lint"
   },

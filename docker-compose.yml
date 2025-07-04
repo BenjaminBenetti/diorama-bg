@@ -1,0 +1,34 @@
+services:
+  basic-sample:
+    profiles: ["basic"]
+    build:
+      context: .
+      dockerfile: sample/basic/Dockerfile
+    ports:
+      - "8080:80"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./lib/
+        - action: rebuild
+          path: ./sample/basic/src/
+        - action: rebuild
+          path: ./sample/basic/deno.json
+        - action: sync+restart
+          path: ./sample/basic/nginx.conf
+          target: /etc/nginx/nginx.conf
+
+  # Future samples can be added here with different profiles
+  # advanced-sample:
+  #   profiles: ["advanced"]
+  #   build:
+  #     context: .
+  #     dockerfile: sample/advanced/Dockerfile
+  #   ports:
+  #     - "8081:80"
+  #   develop:
+  #     watch:
+  #       - action: rebuild
+  #         path: ./lib/
+  #       - action: rebuild
+  #         path: ./sample/advanced/src/

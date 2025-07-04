@@ -102,6 +102,27 @@ cd sample/basic
 deno task dev
 ```
 
+### Docker Development
+
+The project includes Docker Compose configuration with profiles for different samples:
+
+**Run the basic sample:**
+```bash
+deno task docker:basic
+```
+
+**Development with watch mode (rebuilds on file changes):**
+```bash
+deno task docker:basic:watch
+```
+
+**Stop all containers:**
+```bash
+deno task docker:down
+```
+
+The basic sample will be available at http://localhost:8080
+
 ## Library Usage
 
 ```typescript
