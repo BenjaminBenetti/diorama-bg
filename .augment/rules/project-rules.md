@@ -35,3 +35,6 @@ animal
       animalService.ts 
 ....
 ```
+
+# DO NOT MAKE EXAMPLE FILES 
+I can't say it enough. Do not create random example files all over the place.
