@@ -1,4 +1,4 @@
-import { LayerBase } from "./layerBase.ts";
+import { LayerBase } from "./layer-base.ts";
 
 /**
  * A simple image layer that renders a static image to its canvas.

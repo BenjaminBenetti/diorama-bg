@@ -1,5 +1,5 @@
 import { assertEquals, assertThrows } from "@std/assert";
-import { CanvasFactory } from "./canvasFactory.ts";
+import { CanvasFactory } from "./canvas-factory.ts";
 
 // Mock DOM elements for testing
 class MockHTMLElement {

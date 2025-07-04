@@ -1,6 +1,6 @@
 import { assertEquals, assertInstanceOf } from "@std/assert";
-import { DioramaController } from "./dioramaController.ts";
-import { ImageLayer } from "../../layers/model/imageLayer.ts";
+import { DioramaController } from "./diorama-controller.ts";
+import { ImageLayer } from "../../layers/model/image-layer.ts";
 
 // Mock DOM elements for testing
 class MockHTMLElement {

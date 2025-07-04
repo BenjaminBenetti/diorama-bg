@@ -1,6 +1,6 @@
 import { assertEquals, assertInstanceOf } from "@std/assert";
-import { ImageLayer } from "./imageLayer.ts";
-import { LayerBase } from "./layerBase.ts";
+import { ImageLayer } from "./image-layer.ts";
+import { LayerBase } from "./layer-base.ts";
 
 // Mock HTMLCanvasElement for testing
 class MockCanvas {

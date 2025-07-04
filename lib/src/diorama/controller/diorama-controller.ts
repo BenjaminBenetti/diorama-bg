@@ -1,5 +1,5 @@
-import { LayerBase } from "../../layers/model/layerBase.ts";
-import { CanvasFactory } from "../../canvas/factory/canvasFactory.ts";
+import { LayerBase } from "../../layers/model/layer-base.ts";
+import { CanvasFactory } from "../../canvas/factory/canvas-factory.ts";
 
 /**
  * Main controller class for managing diorama backgrounds.
