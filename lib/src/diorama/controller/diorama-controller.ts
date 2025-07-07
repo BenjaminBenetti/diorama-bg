@@ -4,11 +4,14 @@ import { CanvasFactory } from "../../canvas/factory/canvas-factory.ts";
 /**
  * Main controller class for managing diorama backgrounds.
  * Handles layer creation, management, and rendering coordination.
+ * Uses a single canvas approach for optimal performance.
  */
 export class DioramaController {
   private container: HTMLElement;
   private layers: LayerBase[] = [];
   private isInitialized: boolean = false;
+  private mainCanvas: HTMLCanvasElement | null = null;
+  private mainContext: CanvasRenderingContext2D | null = null;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -31,41 +34,64 @@ export class DioramaController {
     // Set up container for canvas layering
     this.container.style.overflow = 'hidden';
     
+    // Create the main canvas for all layers
+    this.createMainCanvas();
+    
     this.isInitialized = true;
   }
 
 
   /**
-   * Add a canvas to the container in the correct z-order.
-   * @param canvas - The canvas to add
+   * Create the main canvas for all layers.
    */
-  private addCanvasToContainer(canvas: HTMLCanvasElement): void {
-    // Find the correct position to insert the canvas based on z-index
-    const existingCanvases = Array.from(this.container.querySelectorAll('canvas'));
-    const canvasZIndex = parseInt(canvas.style.zIndex);
+  private createMainCanvas(): void {
+    this.mainCanvas = CanvasFactory.createMainCanvas(this.container);
+    this.mainContext = this.mainCanvas.getContext('2d');
     
-    let insertBefore: HTMLCanvasElement | null = null;
-    for (const existingCanvas of existingCanvases) {
-      const existingZIndex = parseInt(existingCanvas.style.zIndex);
-      if (existingZIndex > canvasZIndex) {
-        insertBefore = existingCanvas;
-        break;
-      }
+    if (!this.mainContext) {
+      throw new Error('Failed to get 2D context from main canvas');
     }
     
-    if (insertBefore) {
-      this.container.insertBefore(canvas, insertBefore);
-    } else {
-      this.container.appendChild(canvas);
+    // Add the main canvas to the container
+    this.container.appendChild(this.mainCanvas);
+  }
+
+  /**
+   * Sort layers by z-index for proper rendering order (lowest z-index first).
+   * For single canvas rendering, layers are rendered back to front.
+   * @returns Sorted array of layers
+   */
+  private getSortedLayers(): LayerBase[] {
+    return [...this.layers].sort((a, b) => a.zIndex - b.zIndex);
+  }
+
+  /**
+   * Clear the main canvas.
+   */
+  private clearCanvas(): void {
+    if (this.mainCanvas && this.mainContext) {
+      this.mainContext.clearRect(0, 0, this.mainCanvas.width, this.mainCanvas.height);
     }
   }
 
   /**
-   * Sort layers by z-index for proper rendering order (highest z-index first).
-   * @returns Sorted array of layers
+   * Render all layers to the main canvas in z-index order.
    */
-  private getSortedLayers(): LayerBase[] {
-    return [...this.layers].sort((a, b) => b.zIndex - a.zIndex);
+  private renderAllLayers(): void {
+    if (!this.mainContext) {
+      console.error('DioramaController: No main canvas context available');
+      return;
+    }
+
+    // Clear the canvas before rendering
+    this.clearCanvas();
+
+    // Render all layers in z-index order (back to front)
+    const sortedLayers = this.getSortedLayers();
+    
+    for (const layer of sortedLayers) {
+      layer.render(this.mainContext, sortedLayers);
+    }
   }
 
   // ==================================
@@ -82,17 +108,8 @@ export class DioramaController {
       throw new Error('DioramaController is not initialized');
     }
 
-    // Create canvas for the layer
-    const canvas = CanvasFactory.createLayerCanvas(this.container, layer.zIndex);
-
-    // Assign canvas to the layer
-    layer.assignCanvas(canvas);
-
     // Add to layers array
     this.layers.push(layer);
-
-    // Add canvas to container
-    this.addCanvasToContainer(canvas);
 
     // Load the layer
     try {
@@ -113,11 +130,6 @@ export class DioramaController {
     const index = this.layers.indexOf(layer);
     if (index > -1) {
       this.layers.splice(index, 1);
-
-      // Remove canvas from container
-      if (layer.canvas && layer.canvas.parentNode === this.container) {
-        this.container.removeChild(layer.canvas);
-      }
     }
   }
 
@@ -139,26 +151,20 @@ export class DioramaController {
   }
 
   /**
-   * Render all layers in the correct order.
-   * Layers are rendered back to front (highest z-index first).
+   * Render all layers to the main canvas in z-index order.
+   * Layers are rendered back to front (lowest z-index first).
    */
   public render(): void {
-    const sortedLayers = this.getSortedLayers();
-    
-    for (const layer of sortedLayers) {
-      layer.render(sortedLayers);
-    }
+    this.renderAllLayers();
   }
 
   /**
-   * Resize all canvases to match the container size.
+   * Resize the main canvas to match the container size.
    * Call this when the container size changes.
    */
   public resize(): void {
-    for (const layer of this.layers) {
-      if (layer.canvas) {
-        CanvasFactory.resizeCanvas(layer.canvas, this.container);
-      }
+    if (this.mainCanvas) {
+      CanvasFactory.resizeCanvas(this.mainCanvas, this.container);
     }
 
     // Re-render after resize
@@ -169,15 +175,11 @@ export class DioramaController {
    * Clear all layers from the diorama.
    */
   public clear(): void {
-    // Remove all canvases from container
-    for (const layer of this.layers) {
-      if (layer.canvas && layer.canvas.parentNode === this.container) {
-        this.container.removeChild(layer.canvas);
-      }
-    }
-
     // Clear layers array
     this.layers = [];
+    
+    // Clear the main canvas
+    this.clearCanvas();
   }
 
   /**
@@ -195,4 +197,13 @@ export class DioramaController {
   public isReady(): boolean {
     return this.isInitialized;
   }
+
+  /**
+   * Get the main canvas element.
+   * @returns The main canvas element, or null if not initialized
+   */
+  public getMainCanvas(): HTMLCanvasElement | null {
+    return this.mainCanvas;
+  }
+
 }

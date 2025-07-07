@@ -1,5 +1,5 @@
 /**
- * Factory for creating and configuring HTML5 Canvas elements for diorama layers.
+ * Factory for creating and configuring HTML5 Canvas elements for diorama.
  * Handles all canvas creation, sizing, and styling logic.
  */
 export class CanvasFactory {
@@ -9,19 +9,34 @@ export class CanvasFactory {
   // ==================================
 
   /**
-   * Create a canvas element configured for use in a diorama layer.
+   * Create the main canvas element for the diorama.
    * @param container - The container element to size the canvas against
-   * @param zIndex - The z-index for proper layer stacking
-   * @returns A fully configured canvas element
+   * @returns A fully configured main canvas element
    */
-  public static createLayerCanvas(container: HTMLElement, zIndex: number): HTMLCanvasElement {
+  public static createMainCanvas(container: HTMLElement): HTMLCanvasElement {
+    this.validateContainer(container);
+    
     const canvas = document.createElement('canvas');
     
     // Set canvas dimensions
     this.setCanvasDimensions(canvas, container);
     
-    // Apply layer styling
-    this.applyLayerStyling(canvas, zIndex);
+    // Apply main canvas styling (no z-index needed for single canvas)
+    this.applyMainCanvasStyling(canvas);
+    
+    return canvas;
+  }
+
+  /**
+   * Create an offscreen canvas for complex layer rendering.
+   * @param width - The width of the offscreen canvas
+   * @param height - The height of the offscreen canvas
+   * @returns An offscreen canvas element
+   */
+  public static createOffscreenCanvas(width: number, height: number): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
     
     return canvas;
   }
@@ -33,16 +48,6 @@ export class CanvasFactory {
    */
   public static resizeCanvas(canvas: HTMLCanvasElement, container: HTMLElement): void {
     this.setCanvasDimensions(canvas, container);
-  }
-
-  /**
-   * Create multiple canvases for a set of z-indices.
-   * @param container - The container element to size canvases against
-   * @param zIndices - Array of z-index values
-   * @returns Array of configured canvas elements
-   */
-  public static createMultipleCanvases(container: HTMLElement, zIndices: number[]): HTMLCanvasElement[] {
-    return zIndices.map(zIndex => this.createLayerCanvas(container, zIndex));
   }
 
   // ==================================
@@ -61,17 +66,15 @@ export class CanvasFactory {
   }
 
   /**
-   * Apply styling to a canvas for proper layer positioning and stacking.
+   * Apply styling to the main canvas for proper positioning.
    * @param canvas - The canvas to style
-   * @param zIndex - The z-index for layer stacking
    */
-  private static applyLayerStyling(canvas: HTMLCanvasElement, zIndex: number): void {
+  private static applyMainCanvasStyling(canvas: HTMLCanvasElement): void {
     canvas.style.position = 'absolute';
     canvas.style.top = '0';
     canvas.style.left = '0';
     canvas.style.width = '100%';
     canvas.style.height = '100%';
-    canvas.style.zIndex = zIndex.toString();
     canvas.style.pointerEvents = 'none'; // Allow interaction with elements behind
   }
 
@@ -96,18 +99,16 @@ export class CanvasFactory {
   /**
    * Create a canvas with custom styling options.
    * @param container - The container element
-   * @param zIndex - The z-index for stacking
    * @param customStyles - Additional CSS styles to apply
    * @returns Configured canvas element
    */
   public static createCustomCanvas(
     container: HTMLElement, 
-    zIndex: number, 
     customStyles: Partial<CSSStyleDeclaration> = {}
   ): HTMLCanvasElement {
     this.validateContainer(container);
     
-    const canvas = this.createLayerCanvas(container, zIndex);
+    const canvas = this.createMainCanvas(container);
     
     // Apply custom styles
     Object.assign(canvas.style, customStyles);

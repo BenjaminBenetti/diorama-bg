@@ -44,30 +44,31 @@ class MockCanvas extends MockHTMLElement {
   }
 };
 
-Deno.test("CanvasFactory - should create layer canvas with correct dimensions", () => {
+Deno.test("CanvasFactory - should create main canvas with correct dimensions", () => {
   const container = new MockHTMLElement() as unknown as HTMLElement;
-  const canvas = CanvasFactory.createLayerCanvas(container, 1);
+  const canvas = CanvasFactory.createMainCanvas(container);
   
   assertEquals(canvas.width, 800);
   assertEquals(canvas.height, 600);
 });
 
-Deno.test("CanvasFactory - should apply correct layer styling", () => {
+Deno.test("CanvasFactory - should apply correct main canvas styling", () => {
   const container = new MockHTMLElement() as unknown as HTMLElement;
-  const canvas = CanvasFactory.createLayerCanvas(container, 2);
+  const canvas = CanvasFactory.createMainCanvas(container);
   
   assertEquals(canvas.style.position, 'absolute');
   assertEquals(canvas.style.top, '0');
   assertEquals(canvas.style.left, '0');
   assertEquals(canvas.style.width, '100%');
   assertEquals(canvas.style.height, '100%');
-  assertEquals(canvas.style.zIndex, '2');
   assertEquals(canvas.style.pointerEvents, 'none');
+  // No z-index for main canvas
+  assertEquals(canvas.style.zIndex, undefined);
 });
 
 Deno.test("CanvasFactory - should resize canvas to match container", () => {
   const container = new MockHTMLElement() as unknown as HTMLElement;
-  const canvas = CanvasFactory.createLayerCanvas(container, 1);
+  const canvas = CanvasFactory.createMainCanvas(container);
   
   // Initial size
   assertEquals(canvas.width, 800);
@@ -89,15 +90,11 @@ Deno.test("CanvasFactory - should resize canvas to match container", () => {
   assertEquals(canvas.height, 900);
 });
 
-Deno.test("CanvasFactory - should create multiple canvases", () => {
-  const container = new MockHTMLElement() as unknown as HTMLElement;
-  const zIndices = [1, 2, 3];
-  const canvases = CanvasFactory.createMultipleCanvases(container, zIndices);
+Deno.test("CanvasFactory - should create offscreen canvas", () => {
+  const canvas = CanvasFactory.createOffscreenCanvas(400, 300);
   
-  assertEquals(canvases.length, 3);
-  assertEquals(canvases[0].style.zIndex, '1');
-  assertEquals(canvases[1].style.zIndex, '2');
-  assertEquals(canvases[2].style.zIndex, '3');
+  assertEquals(canvas.width, 400);
+  assertEquals(canvas.height, 300);
 });
 
 Deno.test("CanvasFactory - should validate container", () => {
@@ -115,11 +112,11 @@ Deno.test("CanvasFactory - should create custom canvas with additional styles", 
     borderRadius: '10px'
   };
   
-  const canvas = CanvasFactory.createCustomCanvas(container, 1, customStyles);
+  const canvas = CanvasFactory.createCustomCanvas(container, customStyles);
   
-  assertEquals(canvas.style.zIndex, '1');
   assertEquals(canvas.style.opacity, '0.5');
   assertEquals(canvas.style.borderRadius, '10px');
+  assertEquals(canvas.style.position, 'absolute'); // Main canvas styling should still be applied
 });
 
 Deno.test("CanvasFactory - should handle container with no dimensions", () => {
@@ -135,21 +132,10 @@ Deno.test("CanvasFactory - should handle container with no dimensions", () => {
     bottom: 0,
   });
   
-  const canvas = CanvasFactory.createLayerCanvas(container, 1);
+  const canvas = CanvasFactory.createMainCanvas(container);
   
   // Should fall back to default dimensions
   assertEquals(canvas.width, 800);
   assertEquals(canvas.height, 600);
 });
 
-Deno.test("CanvasFactory - should create canvas with different z-indices", () => {
-  const container = new MockHTMLElement() as unknown as HTMLElement;
-  
-  const canvas1 = CanvasFactory.createLayerCanvas(container, 0);
-  const canvas2 = CanvasFactory.createLayerCanvas(container, 5);
-  const canvas3 = CanvasFactory.createLayerCanvas(container, -1);
-  
-  assertEquals(canvas1.style.zIndex, '0');
-  assertEquals(canvas2.style.zIndex, '5');
-  assertEquals(canvas3.style.zIndex, '-1');
-});

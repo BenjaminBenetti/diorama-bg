@@ -59,6 +59,7 @@ class MockCanvas extends MockHTMLElement {
       return {
         clearRect: () => {},
         drawImage: () => {},
+        canvas: this, // Context should reference the canvas
       };
     }
     return null;
@@ -132,10 +133,15 @@ Deno.test("DioramaController - should add image layer", async () => {
   assertEquals(controller.getLayers()[0], imageLayer);
 });
 
-Deno.test("DioramaController - should add canvas to container when adding layer", async () => {
+Deno.test("DioramaController - should have main canvas in container", async () => {
   const container = new MockHTMLElement() as unknown as HTMLElement;
   const controller = new DioramaController(container);
 
+  // Main canvas should be created during initialization
+  assertEquals(container.children.length, 1);
+  assertInstanceOf(container.children[0], MockCanvas);
+  
+  // Adding a layer should not create additional canvases
   const imageLayer = new ImageLayer("https://example.com/image.jpg", 1);
   await controller.addLayer(imageLayer);
 
@@ -169,7 +175,9 @@ Deno.test("DioramaController - should remove layer", async () => {
   controller.removeLayer(layer);
   
   assertEquals(controller.getLayers().length, 0);
-  assertEquals(container.children.length, 0);
+  // Main canvas should still be there
+  assertEquals(container.children.length, 1);
+  assertInstanceOf(container.children[0], MockCanvas);
 });
 
 Deno.test("DioramaController - should clear all layers", async () => {
@@ -182,12 +190,14 @@ Deno.test("DioramaController - should clear all layers", async () => {
   await controller.addLayer(layer2);
   
   assertEquals(controller.getLayers().length, 2);
-  assertEquals(container.children.length, 2);
+  assertEquals(container.children.length, 1); // Only main canvas
   
   controller.clear();
   
   assertEquals(controller.getLayers().length, 0);
-  assertEquals(container.children.length, 0);
+  // Main canvas should still be there
+  assertEquals(container.children.length, 1);
+  assertInstanceOf(container.children[0], MockCanvas);
 });
 
 Deno.test("DioramaController - should render all layers", async () => {
@@ -206,17 +216,27 @@ Deno.test("DioramaController - should render all layers", async () => {
   assertEquals(controller.getLayers().length, 2);
 });
 
-Deno.test("DioramaController - should resize canvases", async () => {
+Deno.test("DioramaController - should resize main canvas", async () => {
   const container = new MockHTMLElement() as unknown as HTMLElement;
   const controller = new DioramaController(container);
   
   const layer = new ImageLayer("https://example.com/image.jpg", 1);
   await controller.addLayer(layer);
   
-  // Initial size should be set
-  assertEquals(layer.canvas!.width, 800);
-  assertEquals(layer.canvas!.height, 600);
+  // Main canvas should be accessible
+  const mainCanvas = controller.getMainCanvas();
+  assertEquals(mainCanvas!.width, 800);
+  assertEquals(mainCanvas!.height, 600);
   
   // Should not throw
   controller.resize();
+});
+
+Deno.test("DioramaController - should provide main canvas API", () => {
+  const container = new MockHTMLElement() as unknown as HTMLElement;
+  const controller = new DioramaController(container);
+  
+  // Should have main canvas
+  const mainCanvas = controller.getMainCanvas();
+  assertInstanceOf(mainCanvas, MockCanvas);
 });

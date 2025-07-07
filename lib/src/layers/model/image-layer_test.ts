@@ -12,6 +12,7 @@ class MockCanvas {
       return {
         clearRect: () => {},
         drawImage: () => {},
+        canvas: this, // Context should reference the canvas
       };
     }
     return null;
@@ -54,7 +55,7 @@ Deno.test("ImageLayer - should extend LayerBase", () => {
 
   assertInstanceOf(imageLayer, LayerBase);
   assertEquals(imageLayer.zIndex, 1);
-  assertEquals(imageLayer.canvas, undefined); // Canvas not assigned yet
+  assertEquals(imageLayer.needsOffscreenCanvas, false); // Default value
 });
 
 Deno.test("ImageLayer - should store image URL", () => {
@@ -93,25 +94,23 @@ Deno.test("ImageLayer - should implement load method from LayerBase", async () =
 
 Deno.test("ImageLayer - should render without errors when image is loaded", async () => {
   const canvas = new MockCanvas() as unknown as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   const imageLayer = new ImageLayer("https://example.com/image.jpg", 1);
 
-  // Assign canvas and preload the image
-  imageLayer.assignCanvas(canvas);
+  // Preload the image
   await imageLayer.preloadImage();
 
   // Render should not throw
-  imageLayer.render([]);
+  imageLayer.render(ctx, []);
 });
 
 Deno.test("ImageLayer - should handle render when image is not loaded", async () => {
   const canvas = new MockCanvas() as unknown as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   const imageLayer = new ImageLayer("https://example.com/image.jpg", 1);
 
-  // Assign canvas
-  imageLayer.assignCanvas(canvas);
-
   // Render should not throw even when image is not loaded
-  imageLayer.render([]);
+  imageLayer.render(ctx, []);
 
   // Wait a bit to let any timers complete
   await new Promise(resolve => setTimeout(resolve, 20));

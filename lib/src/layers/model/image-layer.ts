@@ -61,17 +61,12 @@ export class ImageLayer extends LayerBase {
   }
 
   /**
-   * Render the image layer to its canvas.
+   * Render the image layer to the provided canvas context.
    * The image will be scaled to fit the canvas while maintaining aspect ratio.
+   * @param ctx - The main canvas context to render to
    * @param _layerStack - The stack of all layers (not used for simple image rendering)
    */
-  public render(_layerStack: LayerBase[]): void {
-    // Ensure canvas is assigned
-    if (!this.canvas) {
-      console.error(`ImageLayer: No canvas assigned for layer ${this.zIndex}`);
-      return;
-    }
-
+  public render(ctx: CanvasRenderingContext2D, _layerStack: LayerBase[]): void {
     // Ensure the image is loaded before rendering
     if (!this.isLoaded) {
       // If image is not loaded, start loading it and skip this render cycle
@@ -83,20 +78,18 @@ export class ImageLayer extends LayerBase {
       return;
     }
 
-    // Get the canvas context
-    const canvas = this.canvas;
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx || !this.image) {
-      console.error(`ImageLayer: Invalid canvas context or image for layer ${this.zIndex}`);
+    if (!this.image) {
+      console.error(`ImageLayer: No image available for layer ${this.zIndex}`);
       return;
     }
 
-    // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Get canvas dimensions from the context
+    const canvas = ctx.canvas;
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
 
     // Calculate scaling to fit the image while maintaining aspect ratio
-    const canvasAspect = canvas.width / canvas.height;
+    const canvasAspect = canvasWidth / canvasHeight;
     const imageAspect = this.image.width / this.image.height;
 
     let drawWidth: number;
@@ -106,19 +99,19 @@ export class ImageLayer extends LayerBase {
 
     if (imageAspect > canvasAspect) {
       // Image is wider than canvas - fit to width
-      drawWidth = canvas.width;
-      drawHeight = canvas.width / imageAspect;
+      drawWidth = canvasWidth;
+      drawHeight = canvasWidth / imageAspect;
       drawX = 0;
-      drawY = (canvas.height - drawHeight) / 2;
+      drawY = (canvasHeight - drawHeight) / 2;
     } else {
       // Image is taller than canvas - fit to height
-      drawWidth = canvas.height * imageAspect;
-      drawHeight = canvas.height;
-      drawX = (canvas.width - drawWidth) / 2;
+      drawWidth = canvasHeight * imageAspect;
+      drawHeight = canvasHeight;
+      drawX = (canvasWidth - drawWidth) / 2;
       drawY = 0;
     }
 
-    // Draw the image
+    // Draw the image to the provided context
     ctx.drawImage(this.image, drawX, drawY, drawWidth, drawHeight);
   }
 
