@@ -1,5 +1,5 @@
 {
-  "name": "@bbenetti/parallax-bg",
+  "name": "@bbenetti/diorama-bg",
   "version": "0.1.0",
   "exports": {
     ".": "./mod.ts"
