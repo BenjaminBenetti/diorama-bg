@@ -86,12 +86,7 @@ function setup3DControls(): void {
 
   resetRotation.addEventListener('click', () => {
     stopAnimation();
-    rotationX.value = '0';
-    rotationY.value = '0';
-    rotationZ.value = '0';
-    rotationXValue.textContent = '0°';
-    rotationYValue.textContent = '0°';
-    rotationZValue.textContent = '0°';
+    setRotationValues(0, 0, 0);
     updateRotation();
     animateToggle.textContent = 'Start Animation';
     animateToggle.classList.remove('active');
@@ -102,6 +97,8 @@ function setup3DControls(): void {
     stopAnimation();
     setRotationValues(15, 5, 0);
     updateRotation();
+    animateToggle.textContent = 'Start Animation';
+    animateToggle.classList.remove('active');
   });
 
   presetPerspective.addEventListener('click', () => {
@@ -111,6 +108,8 @@ function setup3DControls(): void {
     fovValue.textContent = '75°';
     updatePerspective();
     updateRotation();
+    animateToggle.textContent = 'Start Animation';
+    animateToggle.classList.remove('active');
   });
 
   presetSubtle.addEventListener('click', () => {
@@ -120,6 +119,8 @@ function setup3DControls(): void {
     fovValue.textContent = '35°';
     updatePerspective();
     updateRotation();
+    animateToggle.textContent = 'Start Animation';
+    animateToggle.classList.remove('active');
   });
 }
 
@@ -139,6 +140,20 @@ function setRotationValues(x: number, y: number, z: number): void {
   rotationY.value = y.toString();
   rotationZ.value = z.toString();
   
+  rotationXValue.textContent = `${x}°`;
+  rotationYValue.textContent = `${y}°`;
+  rotationZValue.textContent = `${z}°`;
+}
+
+/**
+ * Update the slider UI during animation without triggering events
+ */
+function updateSliderUI(x: number, y: number, z: number): void {
+  const rotationXValue = document.getElementById('rotation-x-value') as HTMLSpanElement;
+  const rotationYValue = document.getElementById('rotation-y-value') as HTMLSpanElement;
+  const rotationZValue = document.getElementById('rotation-z-value') as HTMLSpanElement;
+
+  // Update display values only (don't update slider positions during animation)
   rotationXValue.textContent = `${x}°`;
   rotationYValue.textContent = `${y}°`;
   rotationZValue.textContent = `${z}°`;
@@ -194,23 +209,31 @@ function startAnimation(): void {
     
     const elapsed = (currentTime - startTime) / 1000; // Convert to seconds
     
-    // Animated rotation speeds (in degrees per second)
-    const xSpeed = 10; // X-axis rotation speed
-    const ySpeed = 15; // Y-axis rotation speed
-    const zSpeed = 5;  // Z-axis rotation speed
+    // Animated rotation speeds (in degrees per second) - adjusted for smoother motion
+    const xSpeed = 8;  // X-axis rotation speed (slightly slower for better visual)
+    const ySpeed = 12; // Y-axis rotation speed
+    const zSpeed = 6;  // Z-axis rotation speed
     
-    // Calculate current rotation values
-    const xRotation = Math.sin(elapsed * degreesToRadians(xSpeed)) * 20;
-    const yRotation = Math.sin(elapsed * degreesToRadians(ySpeed)) * 25;
-    const zRotation = Math.sin(elapsed * degreesToRadians(zSpeed)) * 10;
+    // Calculate current rotation values with smooth sine waves
+    const xRotation = Math.sin(elapsed * degreesToRadians(xSpeed)) * 18;
+    const yRotation = Math.sin(elapsed * degreesToRadians(ySpeed)) * 22;
+    const zRotation = Math.sin(elapsed * degreesToRadians(zSpeed)) * 12;
     
-    // Update the sliders (this will also update the 3D rotation)
-    setRotationValues(
-      Math.round(xRotation),
-      Math.round(yRotation),
-      Math.round(zRotation)
+    // Apply rotations directly without rounding for smooth fractional angles
+    const xRad = degreesToRadians(xRotation);
+    const yRad = degreesToRadians(yRotation);
+    const zRad = degreesToRadians(zRotation);
+    
+    // Update diorama rotation directly for maximum smoothness
+    dioramaController.setRotation(xRad, yRad, zRad);
+    dioramaController.render();
+    
+    // Update slider UI to reflect current values (rounded for display)
+    updateSliderUI(
+      Math.round(xRotation * 10) / 10, // Round to 1 decimal place for smoother display
+      Math.round(yRotation * 10) / 10,
+      Math.round(zRotation * 10) / 10
     );
-    updateRotation();
     
     animationId = requestAnimationFrame(animate);
   }
