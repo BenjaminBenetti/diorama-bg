@@ -79,12 +79,13 @@ export class DioramaController {
   }
 
   /**
-   * Sort layers by z-index for proper rendering order (lowest z-index first).
-   * For single canvas rendering, layers are rendered back to front.
+   * Sort layers by z-index for proper rendering order (highest z-index first).
+   * For diorama effect, higher z-index = background layers (render first, appear behind).
+   * Lower z-index = foreground layers (render last, appear in front).
    * @returns Sorted array of layers
    */
   private getSortedLayers(): LayerBase[] {
-    return [...this.layers].sort((a, b) => a.zIndex - b.zIndex);
+    return [...this.layers].sort((a, b) => b.zIndex - a.zIndex);
   }
 
   /**
