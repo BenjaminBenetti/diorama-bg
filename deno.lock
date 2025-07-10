@@ -13,7 +13,8 @@
     "jsr:@std/media-types@^1.1.0": "1.1.0",
     "jsr:@std/net@^1.0.4": "1.0.4",
     "jsr:@std/path@^1.1.1": "1.1.1",
-    "jsr:@std/streams@^1.0.10": "1.0.10"
+    "jsr:@std/streams@^1.0.10": "1.0.10",
+    "npm:gl-matrix@^3.4.3": "3.4.3"
   },
   "jsr": {
     "@std/assert@1.0.13": {
@@ -70,9 +71,15 @@
       "integrity": "75c0b1431873cd0d8b3d679015220204d36d3c7420d93b60acfc379eb0dc30af"
     }
   },
+  "npm": {
+    "gl-matrix@3.4.3": {
+      "integrity": "sha512-wcCp8vu8FT22BnvKVPjXa/ICBWRq/zjFfdofZy1WSpQZpphblv12/bOQLBC1rMM7SGOFS9ltVmKOHil5+Ml7gA=="
+    }
+  },
   "workspace": {
     "dependencies": [
-      "jsr:@std/assert@1"
+      "jsr:@std/assert@1",
+      "npm:gl-matrix@^3.4.3"
     ],
     "members": {
       "lib": {
