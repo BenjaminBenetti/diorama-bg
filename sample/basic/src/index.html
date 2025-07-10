@@ -17,9 +17,62 @@
         <div id="diorama-container" class="diorama-container">
             <!-- Diorama layers will be added here -->
         </div>
+        
+        <!-- 3D Controls Panel -->
+        <div class="controls-panel">
+            <h3>3D Controls</h3>
+            
+            <div class="control-group">
+                <h4>Rotation</h4>
+                <div class="slider-group">
+                    <label for="rotation-x">X-Axis:</label>
+                    <input type="range" id="rotation-x" min="-45" max="45" value="0" step="1">
+                    <span id="rotation-x-value">0°</span>
+                </div>
+                <div class="slider-group">
+                    <label for="rotation-y">Y-Axis:</label>
+                    <input type="range" id="rotation-y" min="-45" max="45" value="0" step="1">
+                    <span id="rotation-y-value">0°</span>
+                </div>
+                <div class="slider-group">
+                    <label for="rotation-z">Z-Axis:</label>
+                    <input type="range" id="rotation-z" min="-45" max="45" value="0" step="1">
+                    <span id="rotation-z-value">0°</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h4>Perspective</h4>
+                <div class="slider-group">
+                    <label for="field-of-view">FOV:</label>
+                    <input type="range" id="field-of-view" min="10" max="120" value="45" step="1">
+                    <span id="field-of-view-value">45°</span>
+                </div>
+                <div class="slider-group">
+                    <label for="camera-distance">Camera Distance:</label>
+                    <input type="range" id="camera-distance" min="2" max="20" value="5" step="0.5">
+                    <span id="camera-distance-value">5</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h4>Animation</h4>
+                <button id="animate-toggle" class="animate-btn">Start Animation</button>
+                <button id="reset-rotation" class="reset-btn">Reset Rotation</button>
+            </div>
+
+            <div class="control-group">
+                <h4>Presets</h4>
+                <button id="preset-tilt" class="preset-btn">Tilt Effect</button>
+                <button id="preset-perspective" class="preset-btn">Strong Perspective</button>
+                <button id="preset-subtle" class="preset-btn">Subtle 3D</button>
+            </div>
+        </div>
+
         <div class="content">
-            <h2>Welcome to the Diorama Background Demo</h2>
-            <p>This demo shows a basic diorama background with multiple image layers.</p>
+            <h2>Welcome to the 3D Diorama Background Demo</h2>
+            <p>This demo shows a diorama background with 3D rotation and perspective effects. Use the controls on the right to experiment with different 3D transformations.</p>
+            <p>The 3D effects create depth staging where layers at different z-indices appear at different depths, creating a realistic parallax effect when rotated.</p>
         </div>
     </main>
 
