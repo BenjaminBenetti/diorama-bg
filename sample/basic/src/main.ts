@@ -271,24 +271,40 @@ async function initializeDiorama(): Promise<void> {
   dioramaController = new DioramaController(container);
 
   try {
-    // Add background layers with 3D depth positioning
-    // Layer 3: Far background (mountains/sky) - furthest back
+    // Add parallax background layers with 3D depth positioning using local assets
+    // These PNG files have proper transparency for layering effects
+    
+    // Layer 5: Background sky/atmosphere - furthest back
     await dioramaController.addLayer(new ImageLayer(
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop",
-      3,
-      10 // z-position: far from camera
+      "./assets/parallax-mountain-bg.png",
+      5,
+      20 // z-position: very far from camera
     ));
 
-    // Layer 2: Middle ground (trees/hills) - middle depth
+    // Layer 4: Far mountains - distant peaks
     await dioramaController.addLayer(new ImageLayer(
-      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&h=800&fit=crop",
+      "./assets/parallax-mountain-montain-far.png",
+      4,
+      15 // z-position: far from camera
+    ));
+
+    // Layer 3: Middle mountains - closer peaks
+    await dioramaController.addLayer(new ImageLayer(
+      "./assets/parallax-mountain-mountains.png",
+      3,
+      10 // z-position: medium-far from camera
+    ));
+
+    // Layer 2: Middle ground trees - forest layer
+    await dioramaController.addLayer(new ImageLayer(
+      "./assets/parallax-mountain-trees.png",
       2,
       5 // z-position: medium distance from camera
     ));
 
-    // Layer 1: Foreground (closer elements) - closest to camera
+    // Layer 1: Foreground trees - closest layer with most detail
     await dioramaController.addLayer(new ImageLayer(
-      "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1200&h=800&fit=crop",
+      "./assets/parallax-mountain-foreground-trees.png",
       1,
       0 // z-position: close to camera
     ));
@@ -307,8 +323,9 @@ async function initializeDiorama(): Promise<void> {
       dioramaController.resize();
     });
 
-    console.log('3D Diorama initialized successfully with', dioramaController.getLayers().length, 'layers');
+    console.log('3D Diorama initialized successfully with', dioramaController.getLayers().length, 'parallax layers');
     console.log('Use the controls panel to experiment with 3D transformations!');
+    console.log('Layers:', dioramaController.getLayers().map(layer => `z-index ${layer.zIndex} (depth: ${layer.zPosition})`));
 
   } catch (error) {
     console.error('Failed to initialize diorama:', error);
